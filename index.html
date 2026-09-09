@@ -16,11 +16,13 @@
       <h1>Mapa Territorial JDE 33</h1>
       <p>Secciones · Manzanas · Navegación de campo</p>
     </div>
+
     <div class="top-actions">
       <button id="btnLocate" class="icon-btn" title="Mostrar mi ubicación">◎ <span>Mi ubicación</span></button>
       <button id="btnFitDistrict" class="icon-btn" title="Ver distrito completo">⌂ <span>Distrito</span></button>
       <button id="btnHelp" class="icon-btn" title="Guía de uso">? <span>Ayuda</span></button>
     </div>
+
     <div class="district-badge">
       <strong>Junta Distrital Ejecutiva 33</strong>
       <span>Chalco, Estado de México</span>
@@ -28,7 +30,12 @@
   </header>
 
   <main class="app-shell">
-    <aside class="sidebar">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-head">
+        <strong>Explorar territorio</strong>
+        <button id="btnCloseSidebar" class="mobile-only close-sidebar" aria-label="Cerrar panel">×</button>
+      </div>
+
       <div class="tabs">
         <button class="tab active" data-tab="buscar">Buscar</button>
         <button class="tab" data-tab="capas">Capas</button>
@@ -73,13 +80,30 @@
         <label class="radio"><input type="radio" name="base" value="satellite"> <span>Satélite</span></label>
 
         <div class="divider"></div>
-        <p class="note">La navegación abre Google Maps con un punto interior de la manzana seleccionada como destino.</p>
+        <p class="note">Las etiquetas aparecen según el nivel de zoom para mantener el mapa limpio.</p>
       </section>
     </aside>
 
     <section class="map-wrap">
       <div id="map"></div>
       <div id="statusPill" class="status-pill">Selecciona una sección y una manzana</div>
+
+      <div class="mobile-tools mobile-only">
+        <button id="fabLocate" class="fab primary-fab" aria-label="Mi ubicación">◎<span>Ubicación</span></button>
+        <button id="fabSearch" class="fab" aria-label="Buscar">⌕<span>Buscar</span></button>
+        <button id="fabLayers" class="fab" aria-label="Capas">▱<span>Capas</span></button>
+      </div>
+
+      <div id="locationCard" class="location-card hidden">
+        <button id="closeLocationCard" class="close-card" aria-label="Cerrar">×</button>
+        <div class="loc-icon">●</div>
+        <div>
+          <strong>Estás aquí</strong>
+          <div id="locationSection">Sección: —</div>
+          <div id="locationBlock">Manzana: —</div>
+          <small id="locationAccuracy"></small>
+        </div>
+      </div>
     </section>
 
     <aside id="detailPanel" class="detail-panel hidden" aria-live="polite">
@@ -104,11 +128,11 @@
       <button id="closeHelp" class="close">×</button>
       <h2>Guía rápida</h2>
       <ol>
-        <li>Selecciona una <strong>sección</strong>.</li>
-        <li>Selecciona una <strong>manzana</strong>.</li>
+        <li>Selecciona una <strong>sección</strong> y después una <strong>manzana</strong>.</li>
         <li>Presiona <strong>Localizar en el mapa</strong>.</li>
         <li>Usa <strong>Cómo llegar</strong> para abrir Google Maps.</li>
-        <li>Con <strong>Mi ubicación</strong> puedes ver tu posición durante el trabajo de campo.</li>
+        <li>Presiona <strong>Mi ubicación</strong> para conocer automáticamente tu sección y manzana.</li>
+        <li>En celular usa los botones flotantes de <strong>Ubicación, Buscar y Capas</strong>.</li>
       </ol>
       <p>También puedes tocar directamente una manzana visible en el mapa.</p>
     </div>
