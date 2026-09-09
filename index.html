@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#9b0058" />
+  <title>Mapa Territorial JDE 33</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">INE</div>
+    <div class="brand-copy">
+      <h1>Mapa Territorial JDE 33</h1>
+      <p>Secciones · Manzanas · Navegación de campo</p>
+    </div>
+    <div class="top-actions">
+      <button id="btnLocate" class="icon-btn" title="Mostrar mi ubicación">◎ <span>Mi ubicación</span></button>
+      <button id="btnFitDistrict" class="icon-btn" title="Ver distrito completo">⌂ <span>Distrito</span></button>
+      <button id="btnHelp" class="icon-btn" title="Guía de uso">? <span>Ayuda</span></button>
+    </div>
+    <div class="district-badge">
+      <strong>Junta Distrital Ejecutiva 33</strong>
+      <span>Chalco, Estado de México</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="tabs">
+        <button class="tab active" data-tab="buscar">Buscar</button>
+        <button class="tab" data-tab="capas">Capas</button>
+      </div>
+
+      <section id="tab-buscar" class="tab-pane active">
+        <label for="sectionSelect">Selecciona una sección</label>
+        <select id="sectionSelect"><option value="">— Selecciona —</option></select>
+
+        <label for="blockSelect">Selecciona una manzana</label>
+        <select id="blockSelect" disabled><option value="">— Primero elige sección —</option></select>
+
+        <button id="btnSearch" class="primary" disabled>⌕ Localizar en el mapa</button>
+
+        <div class="divider"></div>
+        <label for="quickSearch">Búsqueda rápida</label>
+        <div class="quick-row">
+          <input id="quickSearch" inputmode="numeric" placeholder="Ej. 1059-13" />
+          <button id="btnQuick" aria-label="Buscar">⌕</button>
+        </div>
+        <small>Formato: sección-manzana</small>
+
+        <div class="divider"></div>
+        <h3>Información del distrito</h3>
+        <dl class="district-info">
+          <div><dt>Entidad</dt><dd>Estado de México</dd></div>
+          <div><dt>Distrito</dt><dd>33</dd></div>
+          <div><dt>Secciones</dt><dd id="sectionCount">—</dd></div>
+          <div><dt>Manzanas</dt><dd id="blockCount">—</dd></div>
+        </dl>
+      </section>
+
+      <section id="tab-capas" class="tab-pane">
+        <h3>Capas visibles</h3>
+        <label class="check"><input id="layerDistrict" type="checkbox" checked> <span>Distrito 33</span></label>
+        <label class="check"><input id="layerSections" type="checkbox" checked> <span>Secciones</span></label>
+        <label class="check"><input id="layerBlocks" type="checkbox" checked> <span>Manzanas de la sección elegida</span></label>
+
+        <div class="divider"></div>
+        <h3>Mapa base</h3>
+        <label class="radio"><input type="radio" name="base" value="osm" checked> <span>Calles</span></label>
+        <label class="radio"><input type="radio" name="base" value="satellite"> <span>Satélite</span></label>
+
+        <div class="divider"></div>
+        <p class="note">La navegación abre Google Maps con un punto interior de la manzana seleccionada como destino.</p>
+      </section>
+    </aside>
+
+    <section class="map-wrap">
+      <div id="map"></div>
+      <div id="statusPill" class="status-pill">Selecciona una sección y una manzana</div>
+    </section>
+
+    <aside id="detailPanel" class="detail-panel hidden" aria-live="polite">
+      <button id="closeDetail" class="close">×</button>
+      <div class="detail-map-icon">⌖</div>
+      <h2 id="detailTitle">Manzana</h2>
+      <h3 id="detailSection">Sección</h3>
+      <dl>
+        <div><dt>Municipio</dt><dd id="detailMunicipio">—</dd></div>
+        <div><dt>Localidad</dt><dd id="detailLocalidad">—</dd></div>
+        <div><dt>Tipo</dt><dd id="detailTipo">—</dd></div>
+        <div><dt>ID cartográfico</dt><dd id="detailId">—</dd></div>
+      </dl>
+      <button id="btnDirections" class="directions">➤ Cómo llegar <small>Abrir en Google Maps</small></button>
+      <button id="btnCenter" class="secondary">◎ Centrar en el mapa</button>
+      <div class="coords" id="detailCoords"></div>
+    </aside>
+  </main>
+
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-card">
+      <button id="closeHelp" class="close">×</button>
+      <h2>Guía rápida</h2>
+      <ol>
+        <li>Selecciona una <strong>sección</strong>.</li>
+        <li>Selecciona una <strong>manzana</strong>.</li>
+        <li>Presiona <strong>Localizar en el mapa</strong>.</li>
+        <li>Usa <strong>Cómo llegar</strong> para abrir Google Maps.</li>
+        <li>Con <strong>Mi ubicación</strong> puedes ver tu posición durante el trabajo de campo.</li>
+      </ol>
+      <p>También puedes tocar directamente una manzana visible en el mapa.</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
