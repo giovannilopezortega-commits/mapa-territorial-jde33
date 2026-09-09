@@ -33,7 +33,7 @@
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-head">
         <strong>Explorar territorio</strong>
-        <button id="btnCloseSidebar" class="mobile-only close-sidebar" aria-label="Cerrar panel">×</button>
+        <button id="btnCloseSidebar" class="close-sidebar" aria-label="Cerrar panel">×</button>
       </div>
 
       <div class="tabs">
@@ -87,12 +87,19 @@
     <section class="map-wrap">
       <div id="map"></div>
       <div id="statusPill" class="status-pill">Selecciona una sección y una manzana</div>
+      <div id="mobileHint" class="mobile-hint">Usa Buscar o Ubicación</div>
 
-      <div class="mobile-tools mobile-only">
-        <button id="fabLocate" class="fab primary-fab" aria-label="Mi ubicación">◎<span>Ubicación</span></button>
-        <button id="fabSearch" class="fab" aria-label="Buscar">⌕<span>Buscar</span></button>
-        <button id="fabLayers" class="fab" aria-label="Capas">▱<span>Capas</span></button>
-      </div>
+      <nav id="mobileNav" class="mobile-bottom-nav" aria-label="Herramientas de campo">
+        <button id="fabLocate" class="mobile-nav-btn accent" type="button" aria-label="Mi ubicación">
+          <span class="mobile-nav-icon">◎</span><span>Ubicación</span>
+        </button>
+        <button id="fabSearch" class="mobile-nav-btn" type="button" aria-label="Buscar sección o manzana">
+          <span class="mobile-nav-icon">⌕</span><span>Buscar</span>
+        </button>
+        <button id="fabLayers" class="mobile-nav-btn" type="button" aria-label="Capas del mapa">
+          <span class="mobile-nav-icon">▱</span><span>Capas</span>
+        </button>
+      </nav>
 
       <div id="locationCard" class="location-card hidden">
         <button id="closeLocationCard" class="close-card" aria-label="Cerrar">×</button>

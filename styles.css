@@ -22,3 +22,179 @@
   .mobile-tools{position:absolute;z-index:930;left:50%;bottom:12px;transform:translateX(-50%);gap:8px;background:#fff;padding:7px;border-radius:16px;box-shadow:0 5px 24px #0003}.fab{border:0;background:#eef1f4;color:#26323d;border-radius:11px;min-width:72px;height:52px;align-items:center;justify-content:center;flex-direction:column;font-size:20px;font-weight:800;cursor:pointer}.fab span{font-size:11px;margin-top:1px}.primary-fab{background:var(--magenta);color:#fff}
   .location-card{top:10px;left:10px;right:10px;transform:none;min-width:0;z-index:910}.leaflet-control-zoom{margin-top:14px!important}.leaflet-control-attribution{font-size:9px}
 }
+
+
+/* ===== V2.1: corrección robusta de interfaz móvil ===== */
+.mobile-bottom-nav,
+.mobile-hint,
+.close-sidebar{display:none}
+
+@media (max-width:900px){
+  html,body{height:100%;overflow:hidden}
+  .topbar{
+    height:64px;
+    min-height:64px;
+    padding:8px 12px;
+    gap:10px;
+  }
+  .brand-mark{
+    font-size:26px;
+    border-left-width:7px;
+    padding-left:8px;
+    letter-spacing:-3px;
+  }
+  .brand-copy h1{font-size:17px;line-height:1.1}
+  .brand-copy p,.district-badge,.top-actions{display:none!important}
+
+  .app-shell{
+    height:calc(100dvh - 64px);
+    min-height:calc(100dvh - 64px);
+    display:block;
+    overflow:hidden;
+  }
+  .map-wrap{
+    position:absolute;
+    inset:0;
+    height:auto;
+  }
+  #map{height:100%!important}
+
+  .sidebar{
+    position:absolute;
+    z-index:1200;
+    left:10px;
+    right:10px;
+    top:10px;
+    bottom:auto;
+    width:auto;
+    max-height:calc(100dvh - 150px);
+    margin:0;
+    padding:14px;
+    border-radius:16px;
+    transform:translateY(-130%);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:transform .22s ease,opacity .22s ease,visibility .22s ease;
+    box-shadow:0 10px 35px rgba(0,0,0,.28);
+  }
+  .sidebar.open{
+    transform:translateY(0);
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .sidebar-head{
+    display:flex!important;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 0 8px;
+  }
+  .close-sidebar{
+    display:flex;
+    width:38px;height:38px;
+    align-items:center;justify-content:center;
+    border:0;border-radius:10px;
+    background:#f0f2f5;
+    font-size:26px;
+    line-height:1;
+    cursor:pointer;
+  }
+
+  .mobile-bottom-nav{
+    position:absolute;
+    z-index:1250;
+    left:50%;
+    bottom:max(12px, env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    display:grid!important;
+    grid-template-columns:repeat(3,84px);
+    gap:6px;
+    padding:7px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:18px;
+    box-shadow:0 8px 28px rgba(0,0,0,.30);
+  }
+  .mobile-nav-btn{
+    border:0;
+    border-radius:12px;
+    background:#eef1f4;
+    color:#25313b;
+    min-height:54px;
+    padding:6px 7px;
+    font-size:11px;
+    font-weight:800;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    cursor:pointer;
+  }
+  .mobile-nav-btn.accent{background:var(--magenta);color:#fff}
+  .mobile-nav-icon{font-size:22px;line-height:1}
+
+  .status-pill{
+    left:50%;
+    bottom:86px;
+    max-width:calc(100% - 28px);
+    width:auto;
+    font-size:13px;
+    padding:9px 12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .mobile-hint{
+    position:absolute;
+    z-index:800;
+    display:block;
+    left:50%;
+    top:12px;
+    transform:translateX(-50%);
+    background:rgba(255,255,255,.95);
+    border-radius:999px;
+    padding:7px 11px;
+    font-size:12px;
+    font-weight:700;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+    pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-hint.hidden{opacity:0}
+
+  .detail-panel{
+    position:absolute;
+    z-index:1180;
+    left:10px;
+    right:10px;
+    bottom:86px;
+    top:auto;
+    width:auto;
+    max-height:52dvh;
+    overflow:auto;
+  }
+  .location-card{
+    z-index:1160;
+    top:12px;
+    left:10px;
+    right:10px;
+    transform:none;
+    min-width:0;
+  }
+
+  .leaflet-control-zoom{
+    margin-top:14px!important;
+    margin-left:14px!important;
+  }
+  .leaflet-control-attribution{font-size:9px}
+}
+
+/* En escritorio ocultar siempre los controles móviles */
+@media (min-width:901px){
+  .mobile-bottom-nav,.mobile-hint{display:none!important}
+  .close-sidebar{display:none!important}
+}

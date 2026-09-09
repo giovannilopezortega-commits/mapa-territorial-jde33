@@ -220,6 +220,7 @@ function identifyLocation(lat,lon){
 }
 
 function locateMe(){
+  hideMobileHint();
   if(!navigator.geolocation){alert('Tu dispositivo no permite geolocalización.');return}
   statusPill.textContent='Obteniendo ubicación…';
   navigator.geolocation.getCurrentPosition(pos=>{
@@ -262,7 +263,10 @@ $('btnLocate').addEventListener('click',locateMe);
 $('fabLocate').addEventListener('click',locateMe);
 $('closeLocationCard').addEventListener('click',()=>$('locationCard').classList.add('hidden'));
 
+function hideMobileHint(){ const h=$('mobileHint'); if(h) h.classList.add('hidden'); }
 function openSidebar(tab='buscar'){
+  hideMobileHint();
+  $('detailPanel').classList.add('hidden');
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
   document.querySelectorAll('.tab-pane').forEach(x=>x.classList.toggle('active',x.id===`tab-${tab}`));
   sidebar.classList.add('open');
@@ -299,3 +303,20 @@ function updateLabelVisibility(){
 map.on('zoomend',updateLabelVisibility);
 
 init();
+
+
+// V2.1: estabiliza el mapa y la barra móvil en navegadores móviles
+function refreshMapSize(){
+  setTimeout(()=>map.invalidateSize({pan:false}),120);
+}
+window.addEventListener('resize',refreshMapSize);
+window.addEventListener('orientationchange',refreshMapSize);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshMapSize()});
+
+if(window.matchMedia('(max-width:900px)').matches){
+  setTimeout(()=>{
+    const nav=document.getElementById('mobileNav');
+    if(nav) nav.style.display='grid';
+    refreshMapSize();
+  },250);
+}
