@@ -1,6 +1,6 @@
 const state={
   district:null,sections:null,index:null,allBlocks:null,blocks:null,
-  selectedSection:null,selectedBlock:null,currentBlockLayer:null,
+  selectedSection:null,selectedSectionFeature:null,selectedBlock:null,currentBlockLayer:null,
   blockLayer:null,userMarker:null,userAccuracy:null,base:'osm'
 };
 
@@ -30,6 +30,39 @@ async function getJSON(url){
 function safe(v){return v===null||v===undefined||v===''?'—':v}
 function blockType(v){const m={0:'Urbana',1:'Rural',2:'Mixta'};return m[v]??`Tipo ${v}`}
 function isMobile(){return window.matchMedia('(max-width:900px)').matches}
+
+function destinationFromFeature(feature){
+  if(!feature)return null;
+  const layer=L.geoJSON(feature);
+  const bounds=layer.getBounds();
+  if(!bounds.isValid())return null;
+
+  // Primero usamos el centro visual. Si no cae dentro del polígono,
+  // Leaflet nos da un centro estable para navegación de campo.
+  const c=bounds.getCenter();
+  return {lat:c.lat,lon:c.lng};
+}
+
+function setDestinationText(feature){
+  const d=destinationFromFeature(feature);
+  $('detailCoords').textContent=d
+    ? `Destino: ${d.lat.toFixed(6)}, ${d.lon.toFixed(6)}`
+    : 'Destino: no disponible';
+}
+
+function showSectionDetail(feature){
+  if(!feature)return;
+  const p=feature.properties||{};
+  $('detailTitle').textContent=`Sección ${safe(p.seccion)}`;
+  $('detailSection').textContent='Destino de sección';
+  $('detailMunicipio').textContent=safe(p.municipio);
+  $('detailLocalidad').textContent='—';
+  $('detailTipo').textContent='Sección';
+  $('detailId').textContent=safe(p.id);
+  setDestinationText(feature);
+  $('btnDirections').textContent='➤ Cómo llegar a la sección';
+  $('detailPanel').classList.remove('hidden');
+}
 
 async function init(){
   try{
@@ -77,6 +110,9 @@ function fillSections(index){
 async function selectSection(sec,zoom=false){
   if(!sec)return;
   state.selectedSection=String(sec);
+  state.selectedBlock=null;
+  state.currentBlockLayer=null;
+  resetSelectedStyle();
   sectionSelect.value=String(sec);
   blockSelect.disabled=true;
   btnSearch.disabled=true;
@@ -90,9 +126,11 @@ async function selectSection(sec,zoom=false){
   blockSelect.disabled=false;
   statusPill.textContent=`Sección ${sec} · ${features.length} manzanas`;
 
-  if(zoom){
-    const sf=state.sections.features.find(f=>String(f.properties.seccion)===String(sec));
-    if(sf)map.fitBounds(L.geoJSON(sf).getBounds(),{padding:[35,35]});
+  const sf=state.sections.features.find(f=>String(f.properties.seccion)===String(sec));
+  state.selectedSectionFeature=sf||null;
+  if(sf){
+    showSectionDetail(sf);
+    if(zoom)map.fitBounds(L.geoJSON(sf).getBounds(),{padding:[35,35]});
   }
   if(isMobile()) closeSidebar();
 }
@@ -156,14 +194,15 @@ function showDetail(f){
   $('detailLocalidad').textContent=safe(p.localidad);
   $('detailTipo').textContent=blockType(p.tipo_manza);
   $('detailId').textContent=safe(p.id);
-  $('detailCoords').textContent=`Destino: ${Number(p.route_lat).toFixed(6)}, ${Number(p.route_lon).toFixed(6)}`;
+  setDestinationText(f);
+  $('btnDirections').textContent='➤ Cómo llegar a la manzana';
   $('detailPanel').classList.remove('hidden');
 }
 
 sectionSelect.addEventListener('change',e=>selectSection(e.target.value,true));
 blockSelect.addEventListener('change',e=>{
   const f=findBlock(e.target.value);
-  if(f)selectBlockFeature(f,getLayerForFeature(f),false); else btnSearch.disabled=true;
+  if(f)selectBlockFeature(f,getLayerForFeature(f),false); else {btnSearch.disabled=true;state.selectedBlock=null;state.currentBlockLayer=null;if(state.selectedSectionFeature)showSectionDetail(state.selectedSectionFeature);}
 });
 btnSearch.addEventListener('click',()=>{if(state.selectedBlock)selectBlockFeature(state.selectedBlock,state.currentBlockLayer,true)});
 $('btnQuick').addEventListener('click',quickSearch);
@@ -181,12 +220,13 @@ async function quickSearch(){
 }
 
 $('btnDirections').addEventListener('click',()=>{
-  if(!state.selectedBlock)return;
-  const p=state.selectedBlock.properties;
-  const url=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.route_lat+','+p.route_lon)}&travelmode=driving`;
+  const feature=state.selectedBlock||state.selectedSectionFeature;
+  const d=destinationFromFeature(feature);
+  if(!d){alert('No fue posible calcular el destino.');return}
+  const url=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(d.lat+','+d.lon)}&travelmode=driving`;
   window.open(url,'_blank','noopener');
 });
-$('btnCenter').addEventListener('click',()=>{if(state.currentBlockLayer)map.fitBounds(state.currentBlockLayer.getBounds(),{padding:[70,70],maxZoom:19})});
+$('btnCenter').addEventListener('click',()=>{if(state.currentBlockLayer){map.fitBounds(state.currentBlockLayer.getBounds(),{padding:[70,70],maxZoom:19});return}if(state.selectedSectionFeature)map.fitBounds(L.geoJSON(state.selectedSectionFeature).getBounds(),{padding:[35,35]})});
 $('closeDetail').addEventListener('click',()=>$('detailPanel').classList.add('hidden'));
 $('btnFitDistrict').addEventListener('click',()=>map.fitBounds(L.geoJSON(state.district).getBounds(),{padding:[20,20]}));
 
