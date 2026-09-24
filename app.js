@@ -360,3 +360,11 @@ if(window.matchMedia('(max-width:900px)').matches){
     refreshMapSize();
   },250);
 }
+
+
+// Atajos de instalación/PWA
+window.addEventListener('load',()=>{
+  const action=new URLSearchParams(window.location.search).get('action');
+  if(action==='search') setTimeout(()=>openSidebar('buscar'),350);
+  if(action==='location') setTimeout(()=>locateMe(),500);
+});
