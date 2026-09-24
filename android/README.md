@@ -3,10 +3,10 @@
 Proyecto Android contenedor para la aplicación web publicada en GitHub Pages.
 
 ## Requisitos
-- Android Studio compatible con Android Gradle Plugin 9.4
+- Android Studio compatible con Android Gradle Plugin 9.3.3
 - JDK 17
 - Android SDK 36
-- Gradle 9.6
+- Gradle 9.5
 
 ## Identificador
 `com.giovannilopez.mapaterritorialjde33`
