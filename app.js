@@ -1,6 +1,7 @@
 const state={
   district:null,sections:null,index:null,allBlocks:null,blocks:null,
   selectedSection:null,selectedSectionFeature:null,selectedBlock:null,currentBlockLayer:null,
+  casillas:null,selectedCasilla:null,casillaLayers:new Map(),
   blockLayer:null,userMarker:null,userAccuracy:null,base:'osm'
 };
 
@@ -14,6 +15,8 @@ bases.osm.addTo(map);
 const districtGroup=L.layerGroup().addTo(map);
 const sectionGroup=L.layerGroup().addTo(map);
 const blockGroup=L.layerGroup().addTo(map);
+
+const casillaGroup=L.layerGroup().addTo(map);
 
 const $=id=>document.getElementById(id);
 const sectionSelect=$('sectionSelect');
@@ -33,6 +36,10 @@ function isMobile(){return window.matchMedia('(max-width:900px)').matches}
 
 function destinationFromFeature(feature){
   if(!feature)return null;
+  if(feature.geometry?.type==='Point'){
+    const [lon,lat]=feature.geometry.coordinates;
+    return {lat,lon};
+  }
   const layer=L.geoJSON(feature);
   const bounds=layer.getBounds();
   if(!bounds.isValid())return null;
@@ -52,6 +59,8 @@ function setDestinationText(feature){
 
 function showSectionDetail(feature){
   if(!feature)return;
+  state.selectedCasilla=null;
+  showTerritoryDetails();
   const p=feature.properties||{};
   $('detailTitle').textContent=`Sección ${safe(p.seccion)}`;
   $('detailSection').textContent='Destino de sección';
@@ -109,6 +118,7 @@ function fillSections(index){
 
 async function selectSection(sec,zoom=false){
   if(!sec)return;
+  state.selectedCasilla=null;
   state.selectedSection=String(sec);
   state.selectedBlock=null;
   state.currentBlockLayer=null;
@@ -187,6 +197,8 @@ function selectBlockFeature(feature,layer,zoom=true){
 }
 
 function showDetail(f){
+  state.selectedCasilla=null;
+  showTerritoryDetails();
   const p=f.properties;
   $('detailTitle').textContent=`Manzana ${p.manzana}`;
   $('detailSection').textContent=`Sección: ${p.seccion}`;
@@ -220,13 +232,13 @@ async function quickSearch(){
 }
 
 $('btnDirections').addEventListener('click',()=>{
-  const feature=state.selectedBlock||state.selectedSectionFeature;
+  const feature=state.selectedCasilla||state.selectedBlock||state.selectedSectionFeature;
   const d=destinationFromFeature(feature);
   if(!d){alert('No fue posible calcular el destino.');return}
   const url=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(d.lat+','+d.lon)}&travelmode=driving`;
   window.open(url,'_blank','noopener');
 });
-$('btnCenter').addEventListener('click',()=>{if(state.currentBlockLayer){map.fitBounds(state.currentBlockLayer.getBounds(),{padding:[70,70],maxZoom:19});return}if(state.selectedSectionFeature)map.fitBounds(L.geoJSON(state.selectedSectionFeature).getBounds(),{padding:[35,35]})});
+$('btnCenter').addEventListener('click',()=>{if(state.selectedCasilla){centerCasilla(state.selectedCasilla);return}if(state.currentBlockLayer){map.fitBounds(state.currentBlockLayer.getBounds(),{padding:[70,70],maxZoom:19});return}if(state.selectedSectionFeature)map.fitBounds(L.geoJSON(state.selectedSectionFeature).getBounds(),{padding:[35,35]})});
 $('closeDetail').addEventListener('click',()=>$('detailPanel').classList.add('hidden'));
 $('btnFitDistrict').addEventListener('click',()=>map.fitBounds(L.geoJSON(state.district).getBounds(),{padding:[20,20]}));
 
@@ -343,6 +355,7 @@ function updateLabelVisibility(){
 map.on('zoomend',updateLabelVisibility);
 
 init();
+initCasillas();
 
 
 // V2.1: estabiliza el mapa y la barra móvil en navegadores móviles
@@ -368,3 +381,74 @@ window.addEventListener('load',()=>{
   if(action==='search') setTimeout(()=>openSidebar('buscar'),350);
   if(action==='location') setTimeout(()=>locateMe(),500);
 });
+
+
+function showTerritoryDetails(){
+  $('territoryDetails').hidden=false;
+  $('casillaDetails').hidden=true;
+}
+async function initCasillas(){
+  try{
+    state.casillas=await getJSON('data/casillas.geojson');
+    L.geoJSON(state.casillas,{
+      pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:8,color:'#fff',weight:2,fillColor:'#0288d1',fillOpacity:1}),
+      onEachFeature:(f,l)=>{
+        l.bindTooltip(Casillas.label(f));
+        l.on('click',()=>selectCasilla(f));
+        state.casillaLayers.set(f.properties.id,l);
+      }
+    }).addTo(casillaGroup);
+    $('casillaCount').textContent=state.casillas.features.length;
+    $('casillaSearch').disabled=false;
+    $('btnCasillaSearch').disabled=false;
+    renderCasillaResults();
+  }catch(e){
+    console.error(e);
+    $('casillaStatus').textContent='No fue posible cargar las casillas. Recarga la app para volver a intentar.';
+  }
+}
+function renderCasillaResults(){
+  if(!state.casillas)return;
+  const matches=Casillas.search(state.casillas.features,$('casillaSearch').value);
+  const results=$('casillaResults');
+  results.replaceChildren();
+  $('casillaStatus').textContent=matches.length
+    ? `${matches.length} ubicaciones${matches.length>12?' · Escribe para filtrar; se muestran las primeras 12.':''}`
+    : 'No se encontraron ubicaciones. Busca por sección, lugar o domicilio.';
+  matches.slice(0,12).forEach(f=>{
+    const button=document.createElement('button');button.type='button';button.className='casilla-result';
+    const title=document.createElement('strong');title.textContent=Casillas.label(f);
+    const place=document.createElement('span');place.textContent=f.properties.ubicacion||f.properties.domicilio||'Ubicación registrada en el mapa';
+    button.append(title,place);button.addEventListener('click',()=>selectCasilla(f));results.appendChild(button);
+  });
+}
+function centerCasilla(f){
+  const d=destinationFromFeature(f);
+  map.setView([d.lat,d.lon],18);
+}
+function selectCasilla(f){
+  state.selectedCasilla=f;
+  $('layerCasillas').checked=true;
+  if(!map.hasLayer(casillaGroup))casillaGroup.addTo(map);
+  const p=f.properties;
+  $('territoryDetails').hidden=true;
+  $('casillaDetails').hidden=false;
+  $('detailTitle').textContent='Ubicación de casillas';
+  $('detailSection').textContent=Casillas.label(f);
+  $('casillaPlace').textContent=p.ubicacion||'No indicado en el archivo';
+  $('casillaAddress').textContent=p.domicilio||'No indicado en el archivo';
+  $('casillaReference').textContent=p.referencia||'No indicada en el archivo';
+  $('casillaPlaceType').textContent=p.tipo_domicilio||'No indicado';
+  $('casillaNumber').textContent=p.numero_casillas??'No indicado';
+  setDestinationText(f);
+  $('btnDirections').textContent='➤ Cómo llegar a la casilla';
+  $('detailPanel').classList.remove('hidden');
+  statusPill.textContent=Casillas.label(f);
+  centerCasilla(f);
+  state.casillaLayers.get(p.id)?.bringToFront();
+  if(isMobile())closeSidebar();
+}
+$('casillaSearch').addEventListener('input',renderCasillaResults);
+$('casillaSearch').addEventListener('keydown',e=>{if(e.key==='Enter')renderCasillaResults()});
+$('btnCasillaSearch').addEventListener('click',renderCasillaResults);
+$('layerCasillas').addEventListener('change',e=>e.target.checked?casillaGroup.addTo(map):map.removeLayer(casillaGroup));

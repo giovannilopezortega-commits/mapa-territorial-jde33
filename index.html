@@ -22,7 +22,7 @@
     <div class="brand-mark">INE</div>
     <div class="brand-copy">
       <h1>Mapa Territorial JDE 33</h1>
-      <p>Secciones · Manzanas · Navegación de campo</p>
+      <p>Secciones · Manzanas · Casillas</p>
     </div>
 
     <div class="top-actions">
@@ -46,6 +46,7 @@
 
       <div class="tabs">
         <button class="tab active" data-tab="buscar">Buscar</button>
+        <button class="tab" data-tab="casillas">Casillas</button>
         <button class="tab" data-tab="capas">Capas</button>
       </div>
 
@@ -73,7 +74,20 @@
           <div><dt>Distrito</dt><dd>33</dd></div>
           <div><dt>Secciones</dt><dd id="sectionCount">—</dd></div>
           <div><dt>Manzanas</dt><dd id="blockCount">—</dd></div>
+          <div><dt>Ubicaciones de casillas</dt><dd id="casillaCount">—</dd></div>
         </dl>
+      </section>
+
+      <section id="tab-casillas" class="tab-pane">
+        <h3>Buscar ubicación de casillas</h3>
+        <label for="casillaSearch">Sección, lugar o domicilio</label>
+        <div class="quick-row">
+          <input id="casillaSearch" type="search" placeholder="Ej. 1059 o nombre de escuela" disabled />
+          <button id="btnCasillaSearch" aria-label="Buscar casillas" disabled>⌕</button>
+        </div>
+        <p id="casillaStatus" class="note" role="status">Cargando ubicaciones…</p>
+        <div id="casillaResults" class="casilla-results"></div>
+        <p class="note">Fuente: UC 2026. Los puntos están identificados por sección; el archivo no distingue básica o contigua.</p>
       </section>
 
       <section id="tab-capas" class="tab-pane">
@@ -81,6 +95,8 @@
         <label class="check"><input id="layerDistrict" type="checkbox" checked> <span>Distrito 33</span></label>
         <label class="check"><input id="layerSections" type="checkbox" checked> <span>Secciones</span></label>
         <label class="check"><input id="layerBlocks" type="checkbox" checked> <span>Manzanas de la sección elegida</span></label>
+
+        <label class="check"><input id="layerCasillas" type="checkbox" checked> <span>Ubicaciones de casillas</span></label>
 
         <div class="divider"></div>
         <h3>Mapa base</h3>
@@ -126,11 +142,18 @@
       <div class="detail-map-icon">⌖</div>
       <h2 id="detailTitle">Manzana</h2>
       <h3 id="detailSection">Sección</h3>
-      <dl>
+      <dl id="territoryDetails">
         <div><dt>Municipio</dt><dd id="detailMunicipio">—</dd></div>
         <div><dt>Localidad</dt><dd id="detailLocalidad">—</dd></div>
         <div><dt>Tipo</dt><dd id="detailTipo">—</dd></div>
         <div><dt>ID cartográfico</dt><dd id="detailId">—</dd></div>
+      </dl>
+      <dl id="casillaDetails" hidden>
+        <div><dt>Lugar</dt><dd id="casillaPlace">—</dd></div>
+        <div><dt>Domicilio</dt><dd id="casillaAddress">—</dd></div>
+        <div><dt>Referencia</dt><dd id="casillaReference">—</dd></div>
+        <div><dt>Tipo de domicilio</dt><dd id="casillaPlaceType">—</dd></div>
+        <div><dt>Casillas en el punto</dt><dd id="casillaNumber">—</dd></div>
       </dl>
       <button id="btnDirections" class="directions">➤ Cómo llegar <small>Abrir en Google Maps</small></button>
       <button id="btnCenter" class="secondary">◎ Centrar en el mapa</button>
@@ -144,6 +167,7 @@
       <h2>Guía rápida</h2>
       <ol>
         <li>Selecciona una <strong>sección</strong>. Puedes navegar directamente a ella o elegir después una <strong>manzana</strong>.</li>
+        <li>En la pestaña <strong>Casillas</strong>, busca por sección, lugar o domicilio y selecciona una ubicación. Usa <strong>Cómo llegar a la casilla</strong> para abrir la ruta.</li>
         <li>Presiona <strong>Localizar en el mapa</strong>.</li>
         <li>Usa <strong>Cómo llegar a la sección</strong> o <strong>Cómo llegar a la manzana</strong> para abrir Google Maps.</li>
         <li>Presiona <strong>Mi ubicación</strong> para conocer automáticamente tu sección y manzana.</li>
@@ -157,7 +181,8 @@
   <div class="author-credit" aria-label="Derechos de autor">© 2026 Giovanni López</div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=3.0.0"></script>
+  <script src="casillas.js?v=3.1.0"></script>
+  <script src="app.js?v=3.1.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -1,9 +1,12 @@
-const CACHE_NAME='mapa-jde33-v1';
+const CACHE_NAME='mapa-jde33-v3.1.0';
 const APP_SHELL=[
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './app.js?v=3.1.0',
+  './casillas.js?v=3.1.0',
+  './data/casillas.geojson',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
