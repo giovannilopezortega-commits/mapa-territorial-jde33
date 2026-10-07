@@ -410,17 +410,34 @@ async function initCasillas(){
 function renderCasillaResults(){
   if(!state.casillas)return;
   const matches=Casillas.search(state.casillas.features,$('casillaSearch').value);
-  const results=$('casillaResults');
-  results.replaceChildren();
-  $('casillaStatus').textContent=matches.length
-    ? `${matches.length} ubicaciones${matches.length>12?' · Escribe para filtrar; se muestran las primeras 12.':''}`
-    : 'No se encontraron ubicaciones. Busca por sección, lugar o domicilio.';
-  matches.slice(0,12).forEach(f=>{
-    const button=document.createElement('button');button.type='button';button.className='casilla-result';
-    const title=document.createElement('strong');title.textContent=Casillas.label(f);
-    const place=document.createElement('span');place.textContent=f.properties.ubicacion||f.properties.domicilio||'Ubicación registrada en el mapa';
-    button.append(title,place);button.addEventListener('click',()=>selectCasilla(f));results.appendChild(button);
+  const select=$('casillaSelect');
+  const previous=select.value;
+  select.replaceChildren();
+  const placeholder=document.createElement('option');
+  placeholder.value='';
+  placeholder.textContent=matches.length?'— Selecciona —':'— Sin coincidencias —';
+  select.appendChild(placeholder);
+  matches.forEach(f=>{
+    const option=document.createElement('option');
+    option.value=f.properties.id;
+    option.textContent=Casillas.label(f)+(f.properties.ubicacion?` · ${f.properties.ubicacion}`:'');
+    select.appendChild(option);
   });
+  select.disabled=matches.length===0;
+  if(matches.some(f=>f.properties.id===previous))select.value=previous;
+  $('btnCasillaLocate').disabled=!select.value;
+  $('casillaStatus').textContent=matches.length
+    ? `${matches.length} ubicaciones disponibles · Escribe para filtrar o elige en la lista.`
+    : 'No se encontraron ubicaciones. Busca por sección, lugar o domicilio.';
+}
+function locateSelectedCasilla(){
+  const f=state.casillas?.features.find(f=>f.properties.id===$('casillaSelect').value);
+  if(f)selectCasilla(f);
+}
+function searchCasilla(){
+  renderCasillaResults();
+  const matches=state.casillas?Casillas.search(state.casillas.features,$('casillaSearch').value):[];
+  if(matches.length===1)selectCasilla(matches[0]);
 }
 function centerCasilla(f){
   const d=destinationFromFeature(f);
@@ -431,6 +448,12 @@ function selectCasilla(f){
   $('layerCasillas').checked=true;
   if(!map.hasLayer(casillaGroup))casillaGroup.addTo(map);
   const p=f.properties;
+  if(![...$('casillaSelect').options].some(o=>o.value===p.id)){
+    $('casillaSearch').value='';
+    renderCasillaResults();
+  }
+  $('casillaSelect').value=p.id;
+  $('btnCasillaLocate').disabled=false;
   $('territoryDetails').hidden=true;
   $('casillaDetails').hidden=false;
   $('detailTitle').textContent='Ubicación de casillas';
@@ -449,6 +472,11 @@ function selectCasilla(f){
   if(isMobile())closeSidebar();
 }
 $('casillaSearch').addEventListener('input',renderCasillaResults);
-$('casillaSearch').addEventListener('keydown',e=>{if(e.key==='Enter')renderCasillaResults()});
-$('btnCasillaSearch').addEventListener('click',renderCasillaResults);
+$('casillaSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchCasilla()});
+$('btnCasillaSearch').addEventListener('click',searchCasilla);
+$('casillaSelect').addEventListener('change',()=>{
+  $('btnCasillaLocate').disabled=!$('casillaSelect').value;
+  locateSelectedCasilla();
+});
+$('btnCasillaLocate').addEventListener('click',locateSelectedCasilla);
 $('layerCasillas').addEventListener('change',e=>e.target.checked?casillaGroup.addTo(map):map.removeLayer(casillaGroup));

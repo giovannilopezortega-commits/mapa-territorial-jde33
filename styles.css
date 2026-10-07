@@ -231,10 +231,5 @@
 
 /* Independent polling-location search */
 .tabs{grid-template-columns:repeat(3,1fr)}
-.casilla-results{display:grid;gap:8px}
-.casilla-result{display:block;width:100%;text-align:left;padding:12px;border:1px solid var(--line);border-left:4px solid #0288d1;background:#fff;border-radius:9px;cursor:pointer}
-.casilla-result:hover,.casilla-result:focus-visible{background:#edf7ff;border-color:#0288d1}
-.casilla-result strong,.casilla-result span{display:block}
-.casilla-result span{font-size:12px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
 .detail-panel dd{overflow-wrap:anywhere}
 @media(min-width:901px){.detail-panel{max-height:calc(100dvh - 220px);overflow:auto}}

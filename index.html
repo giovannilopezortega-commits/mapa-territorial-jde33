@@ -86,7 +86,9 @@
           <button id="btnCasillaSearch" aria-label="Buscar casillas" disabled>⌕</button>
         </div>
         <p id="casillaStatus" class="note" role="status">Cargando ubicaciones…</p>
-        <div id="casillaResults" class="casilla-results"></div>
+        <label for="casillaSelect">Selecciona una ubicación de casillas</label>
+        <select id="casillaSelect" disabled><option value="">— Cargando ubicaciones —</option></select>
+        <button id="btnCasillaLocate" class="primary" disabled>⌕ Localizar en el mapa</button>
         <p class="note">Fuente: UC 2026. Los puntos están identificados por sección; el archivo no distingue básica o contigua.</p>
       </section>
 
@@ -181,8 +183,8 @@
   <div class="author-credit" aria-label="Derechos de autor">© 2026 Giovanni López</div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="casillas.js?v=3.1.0"></script>
-  <script src="app.js?v=3.1.0"></script>
+  <script src="casillas.js?v=3.1.1"></script>
+  <script src="app.js?v=3.1.1"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
